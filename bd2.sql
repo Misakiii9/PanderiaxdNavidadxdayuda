@@ -1,20 +1,14 @@
-
-
-
 -- Crear la base de datos
 CREATE DATABASE LaDesesperanzaa;
 
 -- Usar la base de datos
 USE LaDesesperanzaa;
 
-
-
 -- Tabla de Clientes
 CREATE TABLE Clientes (
     id_cliente INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     apellido VARCHAR(100) NOT NULL,
-    correo_electronico VARCHAR(100) UNIQUE NOT NULL,
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_modificacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -24,6 +18,7 @@ CREATE TABLE Panes (
     id_pan INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     cantidad INT NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL, -- Precio del pan
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_modificacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -35,13 +30,8 @@ CREATE TABLE Pedidos (
     id_pan INT,
     cantidad INT NOT NULL,
     total DECIMAL(10, 2) NOT NULL, -- Monto total a pagar
+    direccion_envio VARCHAR(255) NOT NULL, -- Dirección de envío
     fecha_pedido DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente),
     FOREIGN KEY (id_pan) REFERENCES Panes(id_pan)
 );
-
-ALTER TABLE Clientes DROP COLUMN correo_electronico;
-
-use LaDesesperanzaa;
-select * from Pedidos;
-
