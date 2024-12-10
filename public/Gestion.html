@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="css/estilosI.css">
     <link rel="stylesheet" href="css/estilosCa.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="banner">
@@ -20,43 +19,37 @@
     </div>
 
     <div class="container mt-5">
-        <h1>Panadería La Desesperanza</h1>
-        <h2>Gestión de Productos y Pedidos</h2>
-        <h3 class="text-center">Hacer Pedido</h3>
-        <form id="formPedido" class="mb-4">
-            <!-- Datos del cliente -->
-            <input type="text" name="nombre_cliente" class="form-control mb-3" placeholder="Nombre del Cliente" required>
-            <input type="text" name="direccion_envio_cliente" class="form-control mb-3" placeholder="Dirección de Envío del Cliente" required>
-
-            <!-- Selección del pan -->
-            <label for="id_pan">Selecciona el Pan:</label>
-            <select name="nombre_pan" id="nombre" class="form-control mb-3" required>
-                <option value="Pan de Muerto">Pan de Muerto</option>
-                <option value="Orejita">Orejita</option>
-                <option value="Bolillo">Bolillo</option>
-                <option value="Concha">Concha</option>
-                <option value="Baguette">Baguette</option>
-                <option value="Galleta">Galleta</option>
-                <option value="Croissant">Croissant</option>
-                <option value="Muffin">Muffin</option>
-            </select>
-
-            <input type="number" name="precio" id="precio" class="form-control mb-3" placeholder="Precio del Pan (por unidad)" step="0.01" required>
-            <input type="number" name="cantidad" id="cantidad" class="form-control mb-3" placeholder="Cantidad" min="1" required>
-            <input type="number" name="total" id="total" class="form-control mb-3" placeholder="Total a Pagar" step="0.01" required readonly>
-
-            <!-- Dirección de envío del pedido -->
-            <input type="text" name="direccion_envio_pedido" class="form-control mb-3" placeholder="Dirección de Envío del Pedido" required>
-
-            <button type="submit" class="btn btn-primary">Agregar al Pedido</button>
+        <h1>Formulario de Pedido</h1>
+        <form id="formPedido">
+            <div class="mb-3">
+                <label for="nombre_pan" class="form-label">Nombre del Pan</label>
+                <input type="text" id="nombre_pan" name="nombre_pan" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="precio" class="form-label">Precio del Pan</label>
+                <input type="number" id="precio" name="precio" class="form-control" step="0.01" required>
+            </div>
+            <div class="mb-3">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <input type="number" id="cantidad" name="cantidad" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="total" class="form-label">Total</label>
+                <input type="number" id="total" name="total" class="form-control" step="0.01" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="direccion_envio" class="form-label">Dirección de Envío</label>
+                <input type="text" id="direccion_envio" name="direccion_envio" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Agregar Pedido</button>
         </form>
 
-        <!-- Tabla -->
-        <h3 class="text-center">Pedidos</h3>
-        <table class="table table-bordered" id="tablaPedidos">
+        <h2 class="mt-5">Pedidos</h2>
+        <table class="table table-striped table-hover">
             <thead>
                 <tr>
                     <th>Pan</th>
+                    <th>Precio</th>
                     <th>Cantidad</th>
                     <th>Total</th>
                     <th>Dirección</th>
@@ -67,53 +60,85 @@
     </div>
 
     <script>
-        document.querySelector('#formPedido').addEventListener('submit', function(event) {
-    event.preventDefault();  
+        // Calcular el total
+        function calcularTotal() {
+            const precio = parseFloat(document.querySelector('#precio').value) || 0;
+            const cantidad = parseInt(document.querySelector('#cantidad').value) || 0;
+            const total = precio * cantidad;
+            document.querySelector('#total').value = total.toFixed(2); // Total con dos decimales
+        }
 
-    const nombre_cliente = document.querySelector('[name="nombre_cliente"]').value;
-    const direccion_envio_cliente = document.querySelector('[name="direccion_envio_cliente"]').value;
-    const nombre_pan = document.querySelector('#nombre').value;
-    const cantidad = document.querySelector('#cantidad').value;
-    const total = document.querySelector('#total').value;
-    const direccion_envio_pedido = document.querySelector('[name="direccion_envio_pedido"]').value;
+        // Detectar cambios en cantidad o precio
+        document.querySelector('#precio').addEventListener('input', calcularTotal);
+        document.querySelector('#cantidad').addEventListener('input', calcularTotal);
 
-    // Enviar los datos al servidor
-    fetch('/agregarPedido', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            nombre_cliente,
-            direccion_envio_cliente,
-            nombre_pan,
-            cantidad,
-            total,
-            direccion_envio_pedido
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Pedido y cliente agregados:', data);
-        alert(data.message);  // Mostrar mensaje al usuario
-        document.querySelector('#formPedido').reset();  // Limpiar el formulario
-    })
-    .catch(error => {
-        console.error('Error al agregar el pedido:', error);
-        alert('Hubo un error al agregar el pedido');
-    });
-});
+        // Manejar el envío del formulario
+        document.querySelector('#formPedido').addEventListener('submit', function (event) {
+            event.preventDefault();
 
+            const nombre_pan = document.querySelector('#nombre_pan').value.trim();
+            const precio = parseFloat(document.querySelector('#precio').value) || 0;
+            const cantidad = parseInt(document.querySelector('#cantidad').value) || 0;
+            const total = parseFloat(document.querySelector('#total').value) || 0;
+            const direccion_envio = document.querySelector('#direccion_envio').value.trim();
 
-    // Función para calcular el total
-    document.querySelector('#cantidad').addEventListener('input', function() {
-        const cantidad = parseInt(document.querySelector('#cantidad').value) || 0;
-        const precio = parseFloat(document.querySelector('#precio').value) || 0;
-        const total = cantidad * precio;
-        document.querySelector('#total').value = total.toFixed(2);  // Establecer el total calculado
-    });
+            if (!nombre_pan || precio <= 0 || cantidad <= 0 || !direccion_envio) {
+                alert('Por favor, completa todos los campos correctamente.');
+                return;
+            }
 
+            // Enviar datos al servidor
+            fetch('/agregarPedido', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre_pan, precio, cantidad, total, direccion_envio })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message || 'Pedido agregado con éxito');
+                    document.querySelector('#formPedido').reset();
+                    calcularTotal(); // Reiniciar el total
+                    cargarPedidos();
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('No se pudo agregar el pedido.');
+                });
+        });
 
+        // Cargar la tabla de pedidos
+        function cargarPedidos() {
+            fetch('/pedidos')
+                .then(response => {
+                    if (!response.ok) throw new Error('No se pudo obtener la lista de pedidos');
+                    return response.json();
+                })
+                .then(pedidos => {
+                    const tbody = document.querySelector('#pedidosTableBody');
+                    tbody.innerHTML = ''; // Limpiar la tabla
+                    pedidos.forEach(pedido => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${pedido.nombre_pan}</td>
+                            <td>${pedido.precio}</td>
+                            <td>${pedido.cantidad}</td>
+                            <td>${pedido.total}</td>
+                            <td>${pedido.direccion_envio}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('No se pudo cargar la lista de pedidos.');
+                });
+        }
+
+        // Cargar los pedidos al cargar la página
+        window.onload = cargarPedidos;
     </script>
 </body>
 </html>
